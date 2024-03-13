@@ -1,43 +1,8 @@
-# FROM ubuntu:latest AS build
-#
-# RUN apt-get update
-# RUN apt-get install openjdk-17-jdk -y
-# COPY . .
-#
-# RUN ./gradlew bootJar --no-daemon
-#
-# FROM openjdk:17-jdk-slim
-#
-# EXPOSE 8080
-#
-# COPY --from=build /build/libs/JobPortal-1.jar app.jar
-#
-# ENTRYPOINT ["java", "-jar", "app.jar"]
-
-# Use an appropriate base image with JDK and other dependencies
-FROM openjdk:17-jdk AS build
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the entire project into the container
+FROM maven:3.8.5-openjdk-17 AS build
 COPY . .
+RUN mvn clean package -DskipTests
 
-# Run the Gradle build
-RUN ./gradlew bootJar --no-daemon
-
-# Use a lightweight base image for the final image
-FROM openjdk:17-jdk-slim
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Expose the port on which the Spring Boot application will run
+FROM openjdk:17.0.1-jdk-slim
+COPY --from=build /target/JobPortal-1.jar app.jar
 EXPOSE 8080
-
-# Copy the built JAR file from the build stage to the final image
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# Specify the command to run your Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
+ENTRYPOINT ["java","-jar","app.jar"]
