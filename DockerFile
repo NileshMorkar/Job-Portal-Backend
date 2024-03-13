@@ -20,13 +20,7 @@ FROM openjdk:17-jdk AS build
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the Gradle wrapper and other necessary files
-COPY gradlew .
-COPY gradle ./gradle
-COPY build.gradle .
-COPY settings.gradle .
-
-# Copy the entire project
+# Copy the entire project into the container
 COPY . .
 
 # Run the Gradle build
@@ -46,3 +40,4 @@ COPY --from=build /app/build/libs/*.jar app.jar
 
 # Specify the command to run your Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
